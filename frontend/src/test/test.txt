@@ -1,0 +1,67 @@
+Jest: For unit testing Redux logic.
+React Testing Library: For integration testing React components.
+
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event redux-mock-store @testing-library/react-hooks
+
+Step 2: Unit Test the authSlice
+File: authSlice.test.ts
+********* replace this code with the action in auth slice
+import authReducer, { logIn, logOut } from './authSlice';
+
+describe('authSlice', () => {
+  it('should return the initial state', () => {
+    expect(authReducer(undefined, { type: undefined })).toEqual({ isLoggedIn: false });
+  });
+
+  it('should handle logIn', () => {
+    const initialState = { isLoggedIn: false };
+    expect(authReducer(initialState, logIn())).toEqual({ isLoggedIn: true });
+  });
+
+  it('should handle logOut', () => {
+    const initialState = { isLoggedIn: true };
+    expect(authReducer(initialState, logOut())).toEqual({ isLoggedIn: false });
+  });
+});
+
+
+Step 3: Integration Test for HomePage
+File: HomePage.test.tsx
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './store/authSlice';
+import HomePage from './HomePage';
+
+const renderWithRedux = (component: JSX.Element, initialState = { auth: { isLoggedIn: false } }) => {
+  const store = configureStore({ reducer: { auth: authReducer }, preloadedState: initialState });
+  return {
+    ...render(<Provider store={store}>{component}</Provider>),
+    store,
+  };
+};
+
+describe('HomePage Component', () => {
+  it('should render the login button when logged out', () => {
+    renderWithRedux(<HomePage />);
+    expect(screen.getByText(/Log In/i)).toBeInTheDocument();
+  });
+
+  it('should render the logout button when logged in', () => {
+    renderWithRedux(<HomePage />, { auth: { isLoggedIn: true } });
+    expect(screen.getByText(/Log Out/i)).toBeInTheDocument();
+  });
+
+  it('should toggle login state when the button is clicked', () => {
+    const { store } = renderWithRedux(<HomePage />);
+    const button = screen.getByRole('button', { name: /Log In/i });
+
+    userEvent.click(button);
+    expect(store.getState().auth.isLoggedIn).toBe(true);
+
+    userEvent.click(screen.getByRole('button', { name: /Log Out/i }));
+    expect(store.getState().auth.isLoggedIn).toBe(false);
+  });
+});
