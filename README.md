@@ -16,6 +16,9 @@ using Nestjs for backend
 * Make all of the CRUD operations for the announcement and quiz
 
 
+* add Pagination and Filtration  and Search
+
+
 
 * the online postman link
 
