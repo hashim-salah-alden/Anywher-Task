@@ -90,7 +90,10 @@ using React (Typescript) And Redux for state Managment
 
 
 
-* use mui components and Tailwind css for styling 
+* use mui components and Tailwind css for styling
+
+
+* using react testing Library  and Jest for testing
 
 
 
